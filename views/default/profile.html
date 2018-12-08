@@ -1,0 +1,178 @@
+{{left_sidebar_enabled,right_sidebar_enabled=True,('message' in globals())}}
+{{extend "layout.html"}}
+
+
+{{block head}}
+
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script src="{{=URL('static', 'js/profile.js')}}"></script>
+
+<script>
+
+  var messages_url = "{{=URL('api', 'get_message')}}";
+  var get_user_url = "{{=URL('api', 'get_user')}}";
+
+
+
+</script>
+
+{{end}}
+
+
+<style>
+.left { float: left; }
+.right { float: right; }
+.clear { clear: both; }
+h1 { font-size: 18px; }
+h6 { font-size: 13px; }
+.profile-card {
+    margin: 30px;
+    width: 250px;
+    height: 400px;
+    font: 12px "Myriad Pro";
+    float: right;
+    z-index: 10;
+    position: absolute;
+    right: 50;
+    top: 20;
+}
+.profile-card .profile-cover {
+    position: relative;
+    height: 290px;
+}
+.profile-card .profile-cover .profile-avatar {
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    border: 5px solid #ffffff;
+    width: 250px;
+    height: 250px;
+    position: absolute;
+    margin: 25px auto 0;
+    overflow: hidden;
+    left: 0;
+    right: 0;
+    top: 20;
+    border-radius: 50%;
+}
+.profile-card .profile-cover .profile-details {
+    background: rgba(0,0,0,0.4);
+    border-top: 1px solid rgba(0,0,0,0.5);
+    color: #ffffff;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-weight: bold;
+    padding: 4px 0 7px;
+}
+.profile-card .profile-cover .profile-details h6 {
+    font-weight: normal;
+}
+.profile_info {
+    z-index: 10;
+
+}
+
+.button {
+    top: 300;
+    position: absolute;
+}
+
+
+
+
+</style>
+
+<html>
+
+
+<div v-for="user in user_name" class="twothirds">
+      <div class="profile_info">
+               <h1>About Me:</h1>
+               <div class="info_area">
+                   {{=auth.user.profile_text}}
+                   <h1>Venmo Username:</h1>
+                   {{=auth.user.venmo_username}}
+               </div>
+      </div>
+
+</div>
+
+
+    <div class="profile-card">
+               <div class="profile-cover">
+                   <div class="profile-avatar">
+                       <a href="#"><img src="{{=URL('download', args=auth.user.profile_image)}}" /></a>
+                   </div>
+                   <div class="profile-details" v-if="auth.user.!is_edit">
+                       <h1>{{=auth.user.first_name}} {{=auth.user.last_name}}</h1>
+                   </div>
+               </div>
+     </div>
+
+<div id="vue-div" class="display:none">
+    <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+<div class="container">
+    <!-- Form to add ticket to be sold -->
+    <!--<div id="send_message_div"  class="twothirds">-->
+      <!--<h5 style="text-align:center">Send Message</h5>-->
+      <!--<div class="padded " style="padding-top:30px; border-style: solid; border-width: 3px">-->
+
+      <!--<form action="#" v-on:submit.prevent="send_messages()" method="post" >-->
+        <!--<div style="padding-top:10px;">-->
+          <!--Subject:-->
+          <!--<input v-model="form_subject" placeholder="subject"/>-->
+        <!--</div>-->
+          <!--Contact Info:-->
+          <!--<input v-model="form_contact_info" placeholder="(xxx) xxx - xxxx">-->
+        <!--<div style="padding-top:10px;">-->
+          <!--Message:-->
+          <!--<input v-model="form_body_text" placeholder="message" type="textarea"/>-->
+        <!--</div>-->
+
+        <!--<div class="padded center">-->
+        <!--<input style="background-color:black;" type="submit" value="Submit" >-->
+      <!--</div>-->
+      <!--</form>-->
+
+    <!--</div>-->
+
+    <!--<button class="rounded edit_" v-if="has_more" v-on:click="get_messages()"><i class="fa fa-edit fa-lg">GET MORE</i></button>-->
+
+<!--</div>-->
+
+        <br><br>
+    <!-- <div v-for="user in user_name" class="twothirds"> -->
+
+    <div class="twothirds" v-for="message in messages">
+        <div v-if="logged_id == message.to_id">
+             <div id="your_post" style="padding-top:3px;padding-left:5px; border-style: solid; border-width: 3px" >
+              <h6>${message.subject}</h6>
+              <p>Contact Info: ${message.contact_info}</p>
+              <p>Message: ${message.body_text}<p>
+          </div>
+        <br>
+
+        </div>
+
+    </div>
+
+    <br><br>
+
+    <!--TEMP: GET ALL USERS-->
+<!--<div class="all_users">-->
+    <!--<h1>ALL USERS</h1>-->
+    <!--<div v-for="user in user_name">-->
+        <!--${user.first_name} ${user.last_name}-->
+    <!--</div>-->
+<!--</div>-->
+
+
+<!-- </div> -->
+</div>
+</div>
+
+
+
+</html>

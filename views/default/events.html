@@ -1,0 +1,108 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+  var sell_ticket_url = "{{=URL('api', 'sell_ticket', user_signature=True)}}";
+  var sell_ticket_event_url = "{{=URL('api', 'sell_ticket_event', user_signature=True)}}";
+  var tickets_url = "{{=URL('api', 'get_ticket')}}";
+  var Event_date_tickets_url = "{{=URL('api', 'get_ticket_event_date')}}";
+  var sorted_high_tickets_url = "{{=URL('api', 'get_sorted_high_ticket')}}";
+  var sorted_low_tickets_url = "{{=URL('api', 'get_sorted_low_ticket')}}";
+  var edit_ticket_url = "{{=URL('api', 'edit_ticket', user_signature=True)}}";
+  var delete_ticket_url = "{{=URL('api', 'delete_ticket', user_signature=True)}}";
+  var songkick_url = "//api.songkick.com/api/3.0/users/alex-phan-2/calendar.json?reason=attendance&apikey=lEvytpwl4q8UYTJf&jsoncallback=?"
+
+</script>
+
+<style>
+  div p#event_day {
+    font-weight: bold;
+    font-size: 1.5em;
+  }
+
+  div span#venue {
+    color: #066792;
+  }
+
+  div.twothirds.left_padding {
+    padding-left: 70px;
+  }
+
+  hr.style-four {
+    height: 12px;
+    border: 0;
+    box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.5);
+    width: 15%
+}
+
+#right_pics {
+  padding-top: 20px;
+}
+
+#verticalLine {
+  border-left: thin dashed grey;
+  padding-right: 20px;
+}
+</style>
+
+
+
+
+{{end}}
+
+<div class="main_content">
+
+
+
+<div id="vue-div" class="display:none">
+    <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+<div class="container">
+  <div class="twothirds left_padding">
+
+    <span>
+      <h3>Upcoming Events</h3>
+      <h6>Here are upcoming events near you!</h6>
+    </span>
+    <br><br>
+    <div v-for="event in events">
+      <div>
+
+        <p id="event_day">${event.event.performance[0].displayName} </p>
+        <span id="venue">${event.event.venue.displayName},</span> <span style="display:inline">${event.event.location.city}</span>
+        <p style="padding-top:5px;">${event.event.start.date}</p>
+        <p><button type="button" class="btn"><i class="fa fa-calendar-o fa-lg"></i></button></p>
+        <hr class='style-four'/>
+        <br>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="third">
+    <div id="right_pics">
+      <span class="rounded">
+        <img src="https://78.media.tumblr.com/3dee06cdf6b60fec7e5f8a39407e4782/tumblr_ohjmrl6TP01t1urpzo1_1280.jpg"
+        style="width:275px;height:375px;padding-bottom:30px;" align="middle">
+      </span>
+
+      <span class="rounded">
+        <img src="https://scontent.fsnc1-1.fna.fbcdn.net/v/t31.0-8/14086255_10206893557920789_8991898645082635446_o.jpg?_nc_cat=0&oh=338e91919a5c44d383cf97c7e54d8b4a&oe=5BB3E810"
+        style="width:275px;height:375px;padding-bottom:30px;" align="middle">
+      </span>
+
+      <span class="rounded">
+        <img src="https://scontent.fsnc1-1.fna.fbcdn.net/v/t31.0-8/14380009_10207113803226784_8719182694535369220_o.jpg?_nc_cat=0&oh=2d89e33bf6117f90fac70d34a1f09874&oe=5B7B5975"
+        style="width:275px;height:375px;padding-bottom:30px;" align="middle">
+      </span>
+
+    </div>
+  </div>
+
+</div>
+
+</div>
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

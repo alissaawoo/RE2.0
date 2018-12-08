@@ -1,0 +1,325 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+  var sell_ticket_url = "{{=URL('api', 'sell_ticket', user_signature=True)}}";
+  var sell_ticket_event_url = "{{=URL('api', 'sell_ticket_event', user_signature=True)}}";
+  var tickets_url = "{{=URL('api', 'get_ticket')}}";
+  var Event_date_tickets_url = "{{=URL('api', 'get_ticket_event_date')}}";
+  var sorted_high_tickets_url = "{{=URL('api', 'get_sorted_high_ticket')}}";
+  var sorted_low_tickets_url = "{{=URL('api', 'get_sorted_low_ticket')}}";
+  var edit_ticket_url = "{{=URL('api', 'edit_ticket', user_signature=True)}}";
+  var delete_ticket_url = "{{=URL('api', 'delete_ticket', user_signature=True)}}";
+  var songkick_url = "//api.songkick.com/api/3.0/users/alex-phan-2/calendar.json?reason=attendance&apikey=lEvytpwl4q8UYTJf&jsoncallback=?"
+
+</script>
+
+
+
+
+
+{{end}}
+
+<div class="main_content">
+
+
+
+  <div id="vue-div" class="display:none">
+    <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+<div class="container">
+    <!-- Form to add ticket to be sold -->
+    <div id="sell_ticket_div" style="padding-left:30px;"class="third  left compressible" >
+      <h5 style="">Add a ticket to sell!</h5>
+      <div class="padded " style="font-size:12px; width:85%; height:55%; padding-top:30px; border-style: solid; border-width: 3px">
+
+      <form action="#" v-on:submit.prevent="sell_tickets()" method="post" >
+        <div style="padding-top:10px;">
+          Event:
+          <input v-model="form_title" placeholder="title"/>
+        </div>
+        <div style="padding-top:10px;">
+          Location:
+          <input v-model="form_location" placeholder="City, State, Country"/>
+        </div>
+        <div style="padding-top:10px;">
+          Price:
+          <input v-model="form_price" placeholder="price" step="0.01" type="number"/>
+        </div>
+        <div style="padding-top:10px;">
+          Description:
+          <input v-model="form_description" placeholder="Description" type="textarea"/>
+
+        </div>
+        <div  style="padding-top:10px;">
+          Event Date:
+          <input type="date" v-model="form_date"/>
+        </div>
+        <div  style="padding-top:10px;">
+          Event Genre:
+          <select v-model="form_genre">
+            <option value="Trap">Trap</option>
+            <option value="Dub Step">Dub Step</option>
+            <option value="House">House</option>
+            <option value="Trance">Trance</option>
+            <option value="Future Bass">Future Bass</option>
+            <option value="Hard Style">Hard Style</option>
+          </select>
+        </div>
+        <div class="padded center">
+        <input style="background-color:black;" type="submit" value="Submit" >
+      </div>
+      </form>
+
+    </div>
+<!--
+    <button class="rounded edit_" v-on:click="get_tickets_sorted_high()" style="background-color:black;"><i class="fa fa-edit fa-lg">SORT high to low</i></button>
+    <button class="rounded edit_" v-on:click="get_tickets_sorted_low()"><i class="fa fa-edit fa-lg">SORT low to high</i></button>
+    <button class="rounded edit_" v-on:click="get_ticket_date()"><i class="fa fa-edit fa-lg">SORT DATE</i></button>
+        <button class="rounded edit_" v-on:click="get_start_tickets()"><i class="fa fa-edit fa-lg">SORT BY RECENTLY ADDED</i></button>
+    <button class="rounded edit_" v-if="has_more" v-on:click="get_tickets()"><i class="fa fa-edit fa-lg">GET MORE TICKETS</i></button>
+
+    <form >
+        <p>Please select genre filtering:</p>
+        <div>
+          <div>
+          <input type="radio" v-on:click="filter_none()" v-model="filter_genre" id="none" value="null">
+          <label for="none">No filter</label>
+        </div>
+        <div>
+          <input type="radio" v-on:click="filter_post()" v-model="filter_genre" id="Trap" value="Trap">
+          <label for="Trap">Trap</label>
+        </div>
+        <div>
+          <input type="radio" v-on:click="filter_post()" v-model="filter_genre" id="Dub Step" value="Dub Step">
+          <label for="Dub Step">Dub Step</label>
+        </div>
+        <div>
+          <input type="radio" v-on:click="filter_post()" v-model="filter_genre" id="Trance" value="Trance">
+          <label for="Trance">Trance</label>
+        </div>
+        <div>
+          <input type="radio" v-on:click="filter_post()" v-model="filter_genre" id="House" value="House">
+          <label for="House">House</label>
+        </div>
+        <div>
+          <input type="radio" v-on:click="filter_post()" v-model="filter_genre" id="Future Base" value="Future Base">
+          <label for="Future Base">Future Base</label>
+        </div>
+        <div>
+          <input type="radio" v-on:click="filter_post()" v-model="filter_genre" id="Hard Style" value="Hard Style">
+          <label for="Hard Style">Hard Style</label>
+        </div>
+        </div>
+
+    </form>
+-->
+  </div>
+
+    <!-- This is temporary code that will display tickets that can be bought from database. -->
+
+
+      <div class="third centered compressible">
+        <h5 class=" " style=""> Your items for sale</h5>
+        <div v-for="ticket in tickets" v-if="!is_filtered && ticket.user_email == logged_email">
+          <div id="your_post" style="font-size:12px;width:75%;margin-top:15px;padding-left:5px;padding-right:5px; border-style: solid; border-width: 3px" >
+          <h6>${ticket.title}</h6>
+          <p>Location: ${ticket.event_location}<p>
+          <p>Price: ${ticket.price}<p>
+            <p> Description: ${ticket.description}</p>
+              <p> Event Date: ${ticket.event_date}</p>
+              <p> genre: ${ticket.genre}</p>
+
+
+
+              <div v-if="ticket.is_edit">
+                <div style="padding-top:10px;">
+                  Event:
+                  <input v-model="form_title_edit" placeholder="title"/>
+                </div>
+                <div style="padding-top:10px;">
+                  Location:
+                  <input v-model="form_location_edit" placeholder="City, State, Country"/>
+                </div>
+                <div style="padding-top:10px;">
+                  Price:
+                  <input v-model="form_price_edit" placeholder="price" step="0.01" type="number"/>
+                </div>
+                <div style="padding-top:10px;">
+                  Description:
+                  <input v-model="form_description_edit" placeholder="Description" type="textarea"/>
+
+                </div>
+                <div>
+                  Event Date:
+                  <input type="date" v-model="form_event_date_edit"/>
+                </div>
+                <div>
+                  Genre:
+                <select v-model="form_genre_edit">
+                  <option value="Trap">Trap</option>
+                  <option value="Dub Step">Dub Step</option>
+                  <option value="House">House</option>
+                  <option value="Trance">Trance</option>
+                  <option value="Future Bass">Future Bass</option>
+                  <option value="Hard Style">Hard Style</option>
+                </select>
+              </div>
+                <button class="rounded edit_" v-if="ticket.is_edit"v-on:click="editing_ticket(ticket._idx)" style="background-color:black;"><i class="fa fa-edit ">Submit</i></button>
+                  <button class="rounded edit_" v-if="ticket.is_edit"v-on:click="edit_ticket_button(ticket._idx)" style="background-color:black;"><i class="fa fa-edit ">Cancel</i></button>
+              </div>
+              <button class="rounded edit_" v-if="!ticket.is_edit"v-on:click="edit_ticket_button(ticket._idx)" style="background-color:black;"><i class="fa fa-edit fa-sm"> Edit</i></button>
+                <button class="rounded edit_" v-if="!ticket.is_edit"v-on:click="delete_ticket_button(ticket._idx)" style="background-color:black;"><i class="fa fa-trash fa-sm"> Delete</i></button>
+
+</div>
+
+          </div>
+
+<!--
+     <div v-for="ticket in tickets" v-if="is_filtered && ticket.user_email == logged_email && ticket.genre == filter_genre">
+            <div id="your_post" >
+
+              <div id="your_post" style="padding-top:3px;padding-left:5px; border-style: solid; border-width: 3px" >
+              <h6>${ticket.title}</h6>
+              <p>Location: ${ticket.event_location}<p>
+              <p>Price: ${ticket.price}<p>
+                <p> Description: ${ticket.description}</p>
+                  <p> Event Date: ${ticket.event_date}</p>
+                  <p> genre: ${ticket.genre}</p>
+
+
+
+                  <div v-if="ticket.is_edit">
+                    <div style="padding-top:10px;">
+                      Event:
+                      <input v-model="form_title_edit" placeholder="title"/>
+                    </div>
+                    <div style="padding-top:10px;">
+                      Location:
+                      <input v-model="form_location_edit" placeholder="City, State, Country"/>
+                    </div>
+                    <div style="padding-top:10px;">
+                      Price:
+                      <input v-model="form_price_edit" placeholder="price" step="0.01" type="number"/>
+                    </div>
+                    <div style="padding-top:10px;">
+                      Description:
+                      <input v-model="form_description_edit" placeholder="Description" type="textarea"/>
+
+                    </div>
+                    <div>
+                      Event Date:
+                      <input type="date" v-model="form_event_date_edit"/>
+                    </div>
+                    <div>
+                      Genre:
+                    <select v-model="form_genre_edit">
+                      <option value="Trap">Trap</option>
+                      <option value="Dub Step">Dub Step</option>
+                      <option value="House">House</option>
+                      <option value="Trance">Trance</option>
+                      <option value="Future Base">Future Base</option>
+                      <option value="Hard Style">Hard Style</option>
+                    </select>
+                  </div>
+                    <button class="rounded edit_" v-if="ticket.is_edit"v-on:click="editing_ticket(ticket._idx)" style="background-color:black;"><i class="fa fa-edit fa-lg">Submit</i></button>
+                      <button class="rounded edit_" v-if="ticket.is_edit"v-on:click="edit_ticket_button(ticket._idx)" style="background-color:black;"><i class="fa fa-edit fa-lg">Cancel</i></button>
+                  </div>
+                  <button class="rounded edit_" v-if="!ticket.is_edit"v-on:click="edit_ticket_button(ticket._idx)" style="background-color:black;"><i class="fa fa-edit fa-lg"> Edit</i></button>
+                    <button class="rounded edit_" v-if="!ticket.is_edit"v-on:click="delete_ticket_button(ticket._idx)" style="background-color:black;"><i class="fa fa-trash fa-lg"> Delete</i></button>
+</div>  </div>
+
+</div>  -->
+        </div>
+        <div class="third right compressible" style="padding-top:30px;">
+          <span class="rounded">
+            <img src="https://78.media.tumblr.com/3dee06cdf6b60fec7e5f8a39407e4782/tumblr_ohjmrl6TP01t1urpzo1_1280.jpg"
+            style="width:90%;height:270px;padding-bottom:30px;padding-right:30px;" align="middle">
+          </span>
+          <span class="rounded">
+            <img src="https://scontent.fsnc1-1.fna.fbcdn.net/v/t31.0-8/14086255_10206893557920789_8991898645082635446_o.jpg?_nc_cat=0&oh=338e91919a5c44d383cf97c7e54d8b4a&oe=5BB3E810"
+            style="width:90%;height:270px;padding-bottom:30px;padding-right:30px;" align="middle">
+          </span>
+        </div>
+      </div>
+
+
+
+</div>
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>
+
+
+
+<!--
+        <div  v-if="logged_in">
+        <button v-if="!is_adding_memo" id="add_btn" class="rounded" v-on:click="adding_memo()">
+            <i class="fa fa-plus fa-la"></i> ADD </button>
+        <div v-if="is_adding_memo" id="title_memo">
+                <input type="text" placeholder="Title" v-model="form_title">
+                <textarea name="Memo" id="" cols="10" rows="3" placeholder="Memo" v-model="form_memo"></textarea>
+        </div>
+        <div v-if="is_adding_memo" id="title_memo">
+            <button id="submit_btn" class="rounded" v-on:click="submit_memo()"><i class="fa fa-plus"></i> SUBMIT</button>
+            <button id="cancel_btn" class="rounded" v-on:click="adding_memo()"><i class="fa fa-times"></i> CANCEL </button>
+        </div>
+        <div v-for="memo in memos">
+            <div v-if="memo.user_email == logged_email || memo.is_public" class="memo rounded">
+                <div class="memo_text">
+                    <div v-if="is_edit && edit_idx == memo._idx" class="title_memo">
+                        <input type="text" placeholder="Title" v-model="form_title1">
+                        <textarea name="Memo" cols="10" rows="3" placeholder="Memo"
+                                  v-model="form_memo1"></textarea>
+                        <button id="submit_btn" class="rounded" v-on:click="editing_memo(memo._idx)"><i
+                                class="fa fa-plus"></i> SUBMIT
+                        </button>
+                        <button id="cancel_btn" class="rounded" v-on:click="edit_memo(memo._idx)"><i
+                                class="fa fa-times"></i> CANCEL
+                        </button>
+                    </div>
+                    <div v-if="!is_edit || edit_idx != memo._idx">
+                        <div>${memo.title}</div>
+                        <div>${memo.memo}</div>
+                    </div>
+                </div>
+                <div class="button_list"  v-if="memo.user_email == logged_email">
+                    <div class="buttons" v-bind:class="{'ul':toggled, 'ub': !toggled}">
+                        <button class="rounded edit_" v-on:click="edit_memo(memo._idx)"><i class="fa fa-edit fa-lg"></i></button>
+                        <button class="rounded" v-on:click="toggle_public(memo._idx)"
+                                v-bind:class="{'user_': !memo.is_public, 'users_': memo.is_public} ">
+                            <i v-if="memo.is_public" class="fa fa-users fa-lg" ></i>
+                            <i v-if="!memo.is_public" class="fa fa-user fa-lg" ></i>
+                        </button>
+                        <button class="rounded trash_" v-on:click="delete_memo(memo._idx)"><i class="fa fa-trash fa-lg"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="has_more">
+            <button class="rounded" v-on:click="get_more()">
+                <i class="fa fa-ellipsis-h"></i>
+                Load More
+            </button>
+        </div>
+        </div>
+        <div v-if="!logged_in">
+            <h1 class="main_title">Welcome!</h1>
+            <p class="explanation">This site will help you organize your life by storing your checklists.
+                Please log in to use it.</p>
+            <div class="login_button">
+                <a href="{{=URL('default', 'user')}}" class="btn">Login</a>
+            </div>
+            <div v-for="memo in memos">
+                <div v-if="memo.is_public" class="memo rounded">
+                    <div class="memo_text">
+                        <div>${memo.title}</div>
+                        <div>${memo.memo}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>  -->

@@ -1,0 +1,193 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<script src="{{=URL('static', 'js/purchase.js')}}"></script>
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+  var buy_ticket_url = "{{=URL('api', 'buy_ticket', user_signature=True)}}";
+  var tickets_url = "{{=URL('api', 'get_ticket' )}}";
+  var delete_tickets_url = "{{=URL('api', 'delete_ticket')}}";
+
+  // manage functionality
+  var get_users_url = "{{=URL('api', 'get_users')}}";
+  var sell_ticket_url = "{{=URL('api', 'sell_ticket', user_signature=True)}}";
+  var sell_ticket_event_url = "{{=URL('api', 'sell_ticket_event', user_signature=True)}}";
+  var tickets_url = "{{=URL('api', 'get_ticket')}}";
+  var Event_date_tickets_url = "{{=URL('api', 'get_ticket_event_date')}}";
+  var sorted_high_tickets_url = "{{=URL('api', 'get_sorted_high_ticket')}}";
+  var sorted_low_tickets_url = "{{=URL('api', 'get_sorted_low_ticket')}}";
+  var edit_ticket_url = "{{=URL('api', 'edit_ticket', user_signature=True)}}";
+  var delete_ticket_url = "{{=URL('api', 'delete_ticket', user_signature=True)}}";
+  var products_url = "{{=URL('api', 'get_products')}}";
+  var songkick_url = "//api.songkick.com/api/3.0/users/alex-phan-2/calendar.json?reason=attendance&apikey=lEvytpwl4q8UYTJf&jsoncallback=?"
+  var send_message_url = "{{=URL('api', 'send_message', user_signature=True)}}";
+
+
+
+</script>
+
+{{end}}
+
+<div class="main_content">
+
+  <div id="vue-div" style="display:none">
+
+    <div class="container" v-if="show_profile">
+      <div v-for="user in users" v-if="user.id == show_id">
+
+        <div class="container">
+    <!-- Form to add ticket to be sold -->
+    <div id="send_message_div"  class="twothirds">
+      <h6 style="text-align:center">Send Message to ${user.first_name} ${user.last_name}</h6>
+      <div class="padded " style="padding-top:30px; border-style: solid; border-width: 3px">
+
+      <form action="#" v-on:submit.prevent="send_messages()" method="post" >
+        <div style="padding-top:10px;">
+          Subject:
+          <input v-model="form_subject" placeholder="subject"/>
+        </div>
+          Contact Info:
+          <input v-model="form_contact_info" placeholder="(xxx) xxx - xxxx">
+        <div style="padding-top:10px;">
+          Message:
+          <input v-model="form_body_text" placeholder="message" type="textarea"/>
+        </div>
+
+        <div class="padded center">
+        <input style="background-color:black;" type="submit" value="Submit" >
+      </div>
+      </form>
+
+    </div>
+
+</div>
+      </div>
+
+        <button v-on:click="close_profile()">CLOSE THIS PROFILE</button>
+      </div>
+    </div>
+
+
+
+    <div class="container padded">
+      <div class="half">
+          <span><input class="search_input" v-model="product_search"/>
+          <button class="btn" v-on:click="get_products"><i class="fa fa-search fa-lg"></i></button></span>
+      </div>
+
+    <div class="half" style="padding-top:3px; border-style: solid; border-width: 1px; text-align: center">
+      <p>
+        <form>
+        Please select genre filtering:
+        <div>
+          <input type="radio" v-on:click="filter_none()" v-model="filter_genre" id="none" value="null">
+          <label for="none">No Filter</label>
+
+          <input type="radio" v-on:click="filter_post()" v-model="filter_genre" id="Trap" value="Trap">
+          <label for="Trap">Trap</label>
+
+          <input type="radio" v-on:click="filter_post()" v-model="filter_genre" id="Dub Step" value="Dub Step">
+          <label for="Dub Step">Dub Step</label>
+
+          <input type="radio" v-on:click="filter_post()" v-model="filter_genre" id="Trance" value="Trance">
+          <label for="Trance">Trance</label>
+
+          <input type="radio" v-on:click="filter_post()" v-model="filter_genre" id="House" value="House">
+          <label for="House">House</label>
+
+          <input type="radio" v-on:click="filter_post()" v-model="filter_genre" id="Future Bass" value="Future Bass">
+          <label for="Future Bass">Future Bass</label>
+
+          <input type="radio" v-on:click="filter_post()" v-model="filter_genre" id="Hard Style" value="Hard Style">
+          <label for="Hard Style">Hard Style</label>
+        </div>
+        </form>
+      </p>
+    </div>
+
+      <!-- code to display the tickets available -->
+
+      <div class= "display_tickets">
+        <table id="display table" class="track_table" style="width: 100%" v-if="!is_filtered">
+          <thead>
+            <tr>
+              <th style="text-align: center;">Genre</th>
+              <th style="text-align: center;">Title</th>
+              <th style="text-align: center;">Date of event
+                  <button v-on:click="get_ticket_date()"><i class="fa fa-sort-desc" aria-hidden="true"></i></button>
+              </th>
+              <th style="text-align: center;">Date Posted
+                  <button v-on:click="get_start_tickets()"><i class="fa fa-sort-desc" aria-hidden="true"></i></button>
+              </th>
+              <th style="text-align: center;">Price
+                <button v-if="is_sorted_low" v-on:click="get_tickets_sorted_high()"><i class="fa fa-sort" aria-hidden="true"></i></button>
+                <button v-if="is_sorted_high" v-on:click="get_tickets_sorted_low()"><i class="fa fa-sort" aria-hidden="true"></i></button>
+                <button v-if="!is_sorted_high && !is_sorted_low" v-on:click="get_tickets_sorted_low()"><i class="fa fa-sort" aria-hidden="true"></i></button>
+              </th>
+              <th style="text-align: center;">Description</th>
+              <th style="text-align: center;"></th>
+            </tr>
+          </thead>
+
+          <tbody >
+            <tr v-for="ticket in tickets">
+              <td style="text-align: center;">${ticket.genre}</td>
+              <td style="word-wrap: break-word; max-width:150px; text-align: center;">${ticket.title}</td>
+              <td style="text-align: center;">${ticket.event_date}</td>
+              <td style="text-align: center;">${ticket.date_posted}</td>
+              <td style="text-align: center;">${ticket.price}</td>
+              <td style= "max-width:350px;">${ticket.description}</td>
+              <td>
+                
+
+                <div><button v-on:click="display_profile(ticket.user_id)">Send Message</button></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table v-if="is_filtered" id="display table" class="track_table" style="width: 100%">
+          <thead>
+            <tr>
+              <th style="text-align: center;">Genre</th>
+              <th style="text-align: center;">Title</th>
+              <th style="text-align: center;">Date of event
+                  <button v-on:click="get_ticket_date()"><i class="fa fa-sort-desc" aria-hidden="true"></i></button>
+              </th>
+              <th style="text-align: center;">Date Posted
+                  <button v-on:click="get_start_tickets()"><i class="fa fa-sort-desc" aria-hidden="true"></i></button>
+              </th>
+              <th style="text-align: center;">Price
+                <button v-if="is_sorted_low" v-on:click="get_tickets_sorted_high()"><i class="fa fa-sort" aria-hidden="true"></i></button>
+                <button v-if="is_sorted_high" v-on:click="get_tickets_sorted_low()"><i class="fa fa-sort" aria-hidden="true"></i></button>
+                <button v-if="!is_sorted_high && !is_sorted_low" v-on:click="get_tickets_sorted_low()"><i class="fa fa-sort" aria-hidden="true"></i></button>
+              </th>
+              <th style="text-align: center;">Description</th>
+              <th style="text-align: center;">Buttons</th>
+            </tr>
+          </thead>
+
+          <tbody >
+            <tr v-for="ticket in tickets " v-if="ticket.genre == filter_genre">
+              <td style="text-align: center;">${ticket.genre}</td>
+              <td style="word-wrap: break-word; max-width:150px; text-align: center;">${ticket.title}</td>
+              <td style="text-align: center;">${ticket.event_date}</td>
+              <td style="text-align: center;">${ticket.date_posted}</td>
+              <td style="text-align: center;">${ticket.price}</td>
+              <td style= "max-width:350px;">${ticket.description}</td>
+              <td>
+                <div><button>View Ticket</button></div>
+                <div><button v-on:click="display_profile(ticket.user_id)">View Profile</button></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class = "Load center">
+        <button v-if="has_more" v-on:click="get_tickets()"><i class="fa fa-edit fa-lg"></i>Load More</button>
+
+      </div>
+    </div>
+  </div>
+</div>
